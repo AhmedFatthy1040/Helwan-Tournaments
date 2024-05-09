@@ -37,6 +37,7 @@ To run the Helwan Tournaments platform locally using Docker, follow these steps:
 
 ```bash
 docker-compose up
+```
 
 ## Contributing
 
