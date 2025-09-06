@@ -2,11 +2,48 @@ import "./../../../style/style.css"
 import "../../../style/style.min.css"
 import "./UserHome.css"
 import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { tournamentAPI, matchAPI } from "../../../services/api"
 import tornment from "../../img/tornment.png"
 import MatchList from "../../match/matchList"
 import Footer from "../../footer/footer"
 import Header from "../../header/header"
+
 function UserHome() {
+  const [tournaments, setTournaments] = useState([])
+  const [matches, setMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [tournamentsData, matchesData] = await Promise.all([
+        tournamentAPI.getAllTournaments(),
+        matchAPI.getAllMatches()
+      ])
+      
+      setTournaments(tournamentsData)
+      setMatches(matchesData)
+    } catch (error) {
+      setError('Failed to load data')
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const joinTournament = async (tournamentId) => {
+    try {
+      alert(`Joining tournament ${tournamentId}`)
+    } catch (error) {
+      alert('Failed to join tournament')
+    }
+  }
   return (
     <>
 
@@ -60,31 +97,38 @@ function UserHome() {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr >
-                        <td scope="row">1</td>
-                        <td>tournaments 1</td>
-                        <td>Deth Mach</td>
-                        <td>5/5</td>
-                        <td>6/5</td>
-                        <td>
-
-                          <button type="button" class="btn btn-success"><i class="fas fa-plus"></i></button>
-
-                        </td>
-                      </tr>
-                      <tr >
-                        <td scope="row">1</td>
-                        <td>tournaments 1</td>
-                        <td>Deth Mach</td>
-                        <td>5/5</td>
-                        <td>6/5</td>
-                        <td>
-
-                          <button type="button" class="btn btn-success"><i class="fas fa-plus"></i></button>
-
-                        </td>
-                      </tr>
-
+                      {loading ? (
+                        <tr>
+                          <td colSpan="6" className="text-center">Loading tournaments...</td>
+                        </tr>
+                      ) : error ? (
+                        <tr>
+                          <td colSpan="6" className="text-center text-danger">{error}</td>
+                        </tr>
+                      ) : tournaments.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" className="text-center">No tournaments available</td>
+                        </tr>
+                      ) : (
+                        tournaments.map((tournament) => (
+                          <tr key={tournament.id}>
+                            <td>{tournament.id}</td>
+                            <td>{tournament.name}</td>
+                            <td>{tournament.description}</td>
+                            <td>{tournament.startDate}</td>
+                            <td>{tournament.endDate}</td>
+                            <td>
+                              <button 
+                                type="button" 
+                                className="btn btn-success"
+                                onClick={() => joinTournament(tournament.id)}
+                              >
+                                <i className="fas fa-plus"></i> Join
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>

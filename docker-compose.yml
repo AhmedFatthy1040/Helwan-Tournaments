@@ -2,16 +2,22 @@ version: "3.8"
 
 services:
   backend:
-    image: helwan-tournaments-backend
+    build: ./backend
     ports:
       - "8080:8080"
     depends_on:
       - database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/helwan_tournaments
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
 
   frontend:
-    image: helwan-tournaments-frontend
+    build: ./frontend
     ports:
       - "3000:3000"
+    depends_on:
+      - backend
 
   database:
     image: mysql:8.0.31
@@ -19,9 +25,7 @@ services:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: helwan_tournaments
     ports:
-      - "3307:3306"
-    expose:
-      - "3307"
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
 

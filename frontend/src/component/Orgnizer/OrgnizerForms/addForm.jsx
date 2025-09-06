@@ -1,6 +1,43 @@
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { tournamentAPI } from "../../../services/api"
 import Header from "../../header/header"
 import "./addform.css"
+
 function AddForm(){
+    const [formData, setFormData] = useState({
+        name: '',
+        description: '',
+        startDate: '',
+        endDate: ''
+    })
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const navigate = useNavigate()
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setLoading(true)
+        setError('')
+
+        try {
+            await tournamentAPI.createTournament(formData)
+            alert('Tournament created successfully!')
+            navigate('/UserHome')
+        } catch (error) {
+            setError('Failed to create tournament. Please try again.')
+            console.error('Error creating tournament:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
     return(<>
 {/* <Header/> */}
     
@@ -11,44 +48,74 @@ function AddForm(){
                 <div class="mb-3">
                     <h3 style={{color:''}}>Add tournaments </h3>
                 </div>
-                <form id="form1" accept="" class="shadow p-4">
-                    <div class="mb-3">
-                        <label for="username">ID</label>
-                        <input type="email" class="form-control" name="username" id="username" placeholder="User ID"/>
+                <form onSubmit={handleSubmit} id="form1" className="shadow p-4">
+                    {error && (
+                        <div className="alert alert-danger" role="alert">
+                            {error}
+                        </div>
+                    )}
+                    <div className="mb-3">
+                        <label htmlFor="name">Tournament Name</label>
+                        <input 
+                            type="text" 
+                            className="form-control" 
+                            name="name" 
+                            id="name" 
+                            placeholder="Tournament name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
-                    <div class="mb-3">
-                        <label for="username">Tournaments name
-</label>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="tournaments name
-"/>
-                    </div>
-                    <div class="mb-3">
-                        <label for="username" style={{textTransform:'lowercase'}}> DESCRIPTION</label>
-                        <input type="text" class="form-control" name="username" id="DESCRIPTION"
-                            placeholder="DESCRIPTION"/>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="">Date of start</label>
-                        <input type="text" class="form-control" name="Date of start" id="D_of_B"
-                            placeholder="Date of start" />
+                    <div className="mb-3">
+                        <label htmlFor="description">Description</label>
+                        <input 
+                            type="text" 
+                            className="form-control" 
+                            name="description" 
+                            id="description"
+                            placeholder="Description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
 
-                    <div class="mb-3">
-                        <label for="">Date of end</label>
-                        <input type="text" class="form-control" name="Date of end" id="D_of_B"
-                            placeholder="Date of end" />
+                    <div className="mb-3">
+                        <label htmlFor="startDate">Date of Start</label>
+                        <input 
+                            type="date" 
+                            className="form-control" 
+                            name="startDate" 
+                            id="startDate"
+                            value={formData.startDate}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
 
-
-                    <div class="butt_10">
-                        <button className="butt_10"  type="submit" class="">ADD</button>
+                    <div className="mb-3">
+                        <label htmlFor="endDate">Date of End</label>
+                        <input 
+                            type="date" 
+                            className="form-control" 
+                            name="endDate" 
+                            id="endDate"
+                            value={formData.endDate}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
 
-                  
-
-
-
+                    <div className="butt_10">
+                        <button 
+                            className="butt_10"  
+                            type="submit" 
+                            disabled={loading}
+                        >
+                            {loading ? 'Adding...' : 'ADD'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
